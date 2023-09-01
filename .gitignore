@@ -24,6 +24,5 @@ pnpm-debug.log*
 *.sw?
 
 .mongodb
-package-lock.json
 
 .env
