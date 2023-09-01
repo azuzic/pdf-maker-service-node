@@ -8,7 +8,11 @@ const router = Router();
 router.get('/generate-pdf', async (req, res) => {
   try {
     // Launch Puppeteer
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+        executablePath: '/path/to/chromium', // Specify the path to Chromium or Chrome executable
+        headless: true, 
+        args: ['--no-sandbox', '--disable-setuid-sandbox'], // Optional Chromium flags
+    });
     const page = await browser.newPage();
 
     // Read the content of the 'index.html' file
