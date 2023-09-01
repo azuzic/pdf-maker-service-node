@@ -6,7 +6,7 @@ import cors from "cors";
 import pdfRoute from "./pdfRoute.js";
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3001;;
 
 // Set up EJS
 app.use(bodyParser.json({ limit: "5mb" }));
