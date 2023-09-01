@@ -12,7 +12,24 @@ router.get('/generate-pdf', async (req, res) => {
       args: [
         '--no-sandbox', // This flag is often required when running as a non-root user in certain environments
         '--disable-setuid-sandbox',
-        '--font-render-hinting=none', // Set font render hinting to medium
+        '--font-render-hinting=medium', // Set font render hinting to medium
+        '--force-color-profile=srgb',
+        '--headless',
+        '--disable-font-subpixel-positioning',
+        '--enable-font-antialiasing=false',
+        '--disable-gpu',
+        '--use-gl=swiftshader',
+        '--disable-partial-raster',
+        '--force-device-scale-factor=1',
+        '--disable-skia-runtime-opts',
+        '--deterministic-mode',
+        '--disable-extensions',
+        '--js-flags=--random-seed=1157259157',
+        '--disable-dev-shm-usage',
+        '--hide-scrollbars',
+        '--printBackground=true',
+        '--printBackground=true',
+        '--enable-logging'
       ],
     });
 
