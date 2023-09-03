@@ -37,7 +37,7 @@ router.post('/potvrda', async (req, res) => {
     }
 
     // Replace placeholders in the HTML template with JSON values
-    const htmlContent = replacePlaceholders(htmlTemplate, jsonData.data)
+    const htmlContent = replacePlaceholders(htmlTemplate, jsonData)
 
     await page.setContent(htmlContent);
 
