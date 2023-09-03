@@ -1,13 +1,15 @@
 import { Router } from "express";
 import { chromium } from "playwright";
 import { promises as fs } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// /api/auth
 const router = Router();
 
-router.get('/generate-pdf', async (req, res) => {
+router.post('/generate-pdf', async (req, res) => {
   try {
-    // Launch Playwright Chromium browser
+    let jsonData = req.body;
+
     const browser = await chromium.launch({
       args: [
         '--no-sandbox',
@@ -21,32 +23,55 @@ router.get('/generate-pdf', async (req, res) => {
 
     const page = await browser.newPage();
 
-    // Read the content of the 'index.html' file
-    const htmlContent = await fs.readFile('index.html', 'utf8');
+    //const htmlTemplate = await fs.readFile('index.html', 'utf8');
+    const htmlTemplate = jsonData.html;
 
-    // Set the content from the 'index.html' file
+    // Function to replace placeholders with values
+    function replacePlaceholders(template, data) {
+        for (const key in data) {
+            const placeholder = `$${key}`;
+            const value = data[key];
+            template = template.replace(placeholder, value);
+        }
+        return template;
+    }
+
+    // Replace placeholders in the HTML template with JSON values
+    const htmlContent = replacePlaceholders(htmlTemplate, jsonData.data)
+
     await page.setContent(htmlContent);
 
-    // Remove margins
     await page.addStyleTag({ content: '@page { margin: 0cm; }' });
     await page.addStyleTag({ path: 'css/katex.min.css' });
     await page.addStyleTag({ path: 'css/qcss.css' });
     await page.addStyleTag({ path: 'css/tailwind.css' });
-    await page.addStyleTag({content: '* {print-color-adjust: exact; -webkit-print-color-adjust: exact;}'})
+    await page.addStyleTag({ content: '* {print-color-adjust: exact; -webkit-print-color-adjust: exact;}' });
 
-    // Generate a PDF
     await page.evaluate(() => matchMedia('screen').matches);
     await page.emulateMedia({ media: 'screen' });
 
     const pdfBuffer = await page.pdf({ format: 'A4' });
 
-    // Close the browser
     await browser.close();
 
-    // Send the PDF as a downloadable file
-    res.setHeader('Content-Disposition', 'attachment; filename=output.pdf');
-    res.setHeader('Content-Type', 'application/pdf');
-    res.send(pdfBuffer);
+    // Convert the PDF buffer to a base64-encoded string
+    const pdfDataUri = `data:application/pdf;base64,${pdfBuffer.toString('base64')}`;
+
+    // Set response headers for serving the PDF as an HTML page
+    res.setHeader('Content-Type', 'text/html');
+
+    // Determine the directory path of the current module using import.meta.url
+    const currentModulePath = fileURLToPath(import.meta.url);
+    const currentModuleDir = path.dirname(currentModulePath);
+
+    // Serve an HTML page with a link to download the PDF
+    const downloadPagePath = path.join(currentModuleDir, 'download.html');
+    const downloadPageContent = await fs.readFile(downloadPagePath, 'utf8');
+
+    // Replace the placeholder in the HTML with the PDF data URI
+    const updatedDownloadPageContent = downloadPageContent.replace("REPLACE_WITH_BASE64_ENCODED_PDF_DATA", pdfBuffer.toString('base64'));
+    res.send("data:application/pdf;base64,"+pdfBuffer.toString('base64'));
+
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
@@ -54,4 +79,3 @@ router.get('/generate-pdf', async (req, res) => {
 });
 
 export default router;
-
