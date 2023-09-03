@@ -23,8 +23,8 @@ router.post('/potvrda', async (req, res) => {
 
     const page = await browser.newPage();
 
-    //const htmlTemplate = await fs.readFile('index.html', 'utf8');
-    const htmlTemplate = jsonData.html;
+    const htmlTemplate = await fs.readFile('index.html', 'utf8');
+    //const htmlTemplate = jsonData.html;
 
     // Function to replace placeholders with values
     function replacePlaceholders(template, data) {
