@@ -70,7 +70,7 @@ router.post('/generate-pdf', async (req, res) => {
 
     // Replace the placeholder in the HTML with the PDF data URI
     const updatedDownloadPageContent = downloadPageContent.replace("REPLACE_WITH_BASE64_ENCODED_PDF_DATA", pdfBuffer.toString('base64'));
-    res.send("data:application/pdf;base64,"+pdfBuffer.toString('base64'));
+    res.send(pdfBuffer);
 
   } catch (error) {
     console.error(error);
