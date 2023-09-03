@@ -8,7 +8,16 @@ const router = Router();
 router.get('/generate-pdf', async (req, res) => {
   try {
     // Launch Playwright Chromium browser
-    const browser = await chromium.launch();
+    const browser = await chromium.launch({
+      args: [
+        '--no-sandbox',
+        '--headless',
+        '--hide-scrollbars',
+        '--printBackground=true',
+        '--disable-dev-shm-usage',
+        '--font-render-hinting=medium'
+      ],
+    });
 
     const page = await browser.newPage();
 
