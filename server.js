@@ -32,5 +32,5 @@ app.get("/", (req, res) => {
   res.status(200).send("Pdf Maker Service - Up and Running ✅");
 });
 /////////////////////////////////////////////////////////////
-app.use("/pdf", pdfRoute);
+app.use("/api", pdfRoute);
 

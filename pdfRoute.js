@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 
 const router = Router();
 
-router.post('/generate-pdf', async (req, res) => {
+router.post('/potvrda', async (req, res) => {
   try {
     let jsonData = req.body;
 
@@ -70,7 +70,7 @@ router.post('/generate-pdf', async (req, res) => {
 
     // Replace the placeholder in the HTML with the PDF data URI
     const updatedDownloadPageContent = downloadPageContent.replace("REPLACE_WITH_BASE64_ENCODED_PDF_DATA", pdfBuffer.toString('base64'));
-    res.send(pdfBuffer);
+    res.send(pdfDataUri);
 
   } catch (error) {
     console.error(error);
