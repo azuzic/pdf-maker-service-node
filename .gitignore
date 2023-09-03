@@ -26,3 +26,6 @@ pnpm-debug.log*
 .mongodb
 
 .env
+/test-results/
+/playwright-report/
+/playwright/.cache/

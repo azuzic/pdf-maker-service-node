@@ -1,5 +1,5 @@
 import { Router } from "express";
-import puppeteer from "puppeteer";
+import { chromium } from "playwright";
 import { promises as fs } from 'fs';
 
 // /api/auth
@@ -7,18 +7,8 @@ const router = Router();
 
 router.get('/generate-pdf', async (req, res) => {
   try {
-    // Launch Puppeteer with custom flags
-    const browser = await puppeteer.launch({
-      args: [
-        '--no-sandbox',
-        '--headless',
-        '--window-size=820,480',
-        '--hide-scrollbars',
-        '--printBackground=true',
-        '--disable-dev-shm-usage',
-        '--font-render-hinting=medium'
-      ],
-    });
+    // Launch Playwright Chromium browser
+    const browser = await chromium.launch();
 
     const page = await browser.newPage();
 
@@ -30,8 +20,15 @@ router.get('/generate-pdf', async (req, res) => {
 
     // Remove margins
     await page.addStyleTag({ content: '@page { margin: 0cm; }' });
+    await page.addStyleTag({ path: 'css/katex.min.css' });
+    await page.addStyleTag({ path: 'css/qcss.css' });
+    await page.addStyleTag({ path: 'css/tailwind.css' });
+    await page.addStyleTag({content: '* {print-color-adjust: exact; -webkit-print-color-adjust: exact;}'})
 
     // Generate a PDF
+    await page.evaluate(() => matchMedia('screen').matches);
+    await page.emulateMedia({ media: 'screen' });
+
     const pdfBuffer = await page.pdf({ format: 'A4' });
 
     // Close the browser
@@ -48,3 +45,4 @@ router.get('/generate-pdf', async (req, res) => {
 });
 
 export default router;
+
