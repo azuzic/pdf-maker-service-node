@@ -1,14 +1,18 @@
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-
-//Route
-import pdfRoute from "./pdfRoute.js";
+import path from "path";
+import { fileURLToPath } from "url";
+import "dotenv/config";
+import pdf from "./pdf.js";
 
 const app = express();
-const port = process.env.PORT || 3001;;
+const DEFAULT_PORT = 3001;
+const port = process.env.PORT || DEFAULT_PORT;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Set up EJS
+// Middleware Setup
+app.use(cors());
 app.use(bodyParser.json({ limit: "5mb" }));
 app.use(
   bodyParser.urlencoded({
@@ -17,20 +21,23 @@ app.use(
     parameterLimit: 5000,
   })
 );
+app.use(express.json());
 app.set("view engine", "ejs");
 
-// Set up CORS
-app.use(cors()); //Enable CORS on all routes
-app.use(express.json()); //Automatically decode JSON data
+// API Routes
+app.get("/api/status", (req, res) => {
+  res.status(200).json({
+    microservice: "pdf-maker-service-node",
+    status: "OK",
+    message: "Service is running",
+    status_check_timestamp: new Date().toISOString(),
+  });
+});
 
-/////////////////////////////////////////////////////////////
+app.use("/api", pdf);
+app.use("/api/potvrda", express.static(path.join(__dirname, "potvrde")));
+
+// Start the server
 app.listen(port, () => {
   console.log(`Listening on port ${port} ✅`);
 });
-//Service status
-app.get("/", (req, res) => {
-  res.status(200).send("Pdf Maker Service - Up and Running ✅");
-});
-/////////////////////////////////////////////////////////////
-app.use("/api", pdfRoute);
-
